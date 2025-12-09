@@ -2,6 +2,7 @@
 import asyncio
 import tornado.web
 import tornado.websocket
+import tornado.httpserver
 import os
 import json
 import datetime
@@ -75,9 +76,12 @@ class Application(tornado.web.Application):
 async def main():
     manager = Store("filename")
     app = Application(manager)
-    app.listen(80)
-    shutdown_event = asyncio.Event()
-    await shutdown_event.wait()
+    http_server = tornado.httpserver.HTTPServer(app, ssl_options={
+        "certfile": "keys/localhost.pem",
+        "keyfile": "keys/localhost-key.pem",
+    })
+    http_server.listen(8888)
+    await asyncio.Event().wait()
 
 if __name__ == "__main__":
     try:
